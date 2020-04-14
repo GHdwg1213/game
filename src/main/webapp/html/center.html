@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous">
+    <link href="https://cdn.staticfile.org/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <title>个人中心</title>
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+<body style="background-color: #f8fafc;">
+<div id="app" v-cloak>
+    <nav class="text-muted d-flex align-items-center" style="background-color: #f8f8f8; height: 3rem;">
+        <div class="container d-flex">
+            <span class="d-inline-block">
+                个人中心
+            </span>
+            <span class="ml-3 d-inline-block text-info">
+                {{userInfo.username}}
+            </span>
+            <span class="d-inline-block">
+                ，账户余额 :{{userInfo.balance}}元
+            </span>
+            <span class="ml-auto">
+                <a href="zuhao.html">[返回]</a>
+                <a href="#" @click="logout">[退出]</a>
+            </span>
+        </div>
+    </nav>
+    <div class="container bg-white row mx-auto mt-3 py-3">
+        <div class="col-3">
+            <ul class="list-group mt-5 pt-3" style="cursor: pointer;">
+                <li class="list-group-item" @click="currentStatus = 'myPub'">我发布的</li>
+                <li class="list-group-item" @click="currentStatus = 'myBuy'">我购买的</li>
+            </ul>
+        </div>
+        <div class="col-9">
+            <div v-if="currentStatus == 'myPub'">
+
+                <div class="text-right">
+                    <!-- Button trigger modal -->
+                    <button @click="clearShopItem()" type="button" class="border" style="width: 100px; height: 40px;"
+                            data-toggle="modal"
+                            data-target="#inputForm">
+                        发布账号
+                    </button>
+                </div>
+
+
+                <!-- Modal -->
+                <div class="modal fadebd-example-modal-lg" id="inputForm" tabindex="-1" role="dialog"
+                     aria-labelledby="exampleModalScrollableTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalScrollableTitle">发布中心</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- ====================================== -->
+                                <form>
+                                    <div class="form-group">
+                                        <label for="exampleFormControlSelect1">游戏选择</label>
+                                        <select v-model="shopItem.gameName" class="form-control"
+                                                id="exampleFormControlSelect0">
+                                            <option>王者荣耀</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="exampleFormControlSelect1">操作系统</label>
+                                        <select v-model="shopItem.gameType" class="form-control"
+                                                id="exampleFormControlSelect1">
+                                            <option>Android</option>
+                                            <option>IOS</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="exampleFormControlSelect1">游戏区服</label>
+                                        <select v-model="shopItem.gameServer" class="form-control"
+                                                id="exampleFormControlSelect2">
+                                            <!--                    <option value="">请选择区服</option>-->
+                                            <option v-for="i in 10" :value="i + '区'">{{i}}区</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">游戏账号</label>
+                                        <input type="text" v-model="shopItem.gameUsername" class="form-control"
+                                               id="exampleInputPassword1">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">账号密码</label>
+                                        <input type="password" v-model="shopItem.gameUserPassword" class="form-control"
+                                               id="exampleInputPassword2">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="exampleFormControlSelect1">账号租金(hour)</label>
+                                        <select v-model="shopItem.gamePrice" class="form-control"
+                                                id="exampleFormControlSelect3">
+                                            <!--                               <option value="">请设置时租</option>-->
+                                            <option v-for="i in 10" :value="i">{{i}}元</option>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="goods-info">
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                                    <button @click="addShop()" type="button" class="btn btn-primary">发布</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <br>
+
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">商品标题</th>
+                        <th scope="col">账号密码</th>
+                        <th scope="col">租金信息</th>
+                        <th scope="col">状态</th>
+                        <th scope="col">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(item, index) in myShop" :key="item.id" class="small text-muted">
+                        <td valign="center">
+                            <div>商品编号：{{item.id}}</div>
+                            <div>游戏名称：{{item.gameName}}</div>
+                            <div>游戏大区：{{item.gameServer}}</div>
+                        </td>
+                        <td valign="middle">
+                            <div>账号：{{item.gameUsername}}</div>
+                            <br>
+                            <div>密码：<a v-if="!item.isShowpassword" href="#" @click="showPassword(index)">[点击查看]</a><span
+                                    v-else>{{item.gameUserPassword}}</span></div>
+                        </td>
+                        <td valign="middle">
+                            <br>
+                            <div>租金：{{item.gamePrice.toFixed(2)}}RMB/小时</div>
+                            <br>
+                        </td>
+                        <td valign="middle">
+                            <br>
+                            <div>
+                                {{item.status == 0 ? "待租赁" : "下架"}}
+                            </div>
+                            <br>
+                        </td>
+                        <td valign="middle">
+                            <div><a href="#" @click="updateShopItem(item)" data-toggle="modal"
+                                    data-target="#inputForm">编辑</a></div>
+                            <div>
+                                <a v-if="item.status == 1" href="#" @click="changeShopStatus(item.id, true)">上架</a>
+                                <a v-else href="#" @click="changeShopStatus(item.id, false)">下架</a>
+                            </div>
+                            <div><a href="#" @click="deleteShop(item.id)">删除</a></div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-if="currentStatus == 'myBuy'">
+                <h1 class="text-right">我的购买</h1>
+                <table class="table mt-3">
+                    <thead>
+                    <tr>
+                        <th scope="col">商品标题</th>
+                        <th scope="col">账号密码</th>
+                        <th scope="col">租金信息</th>
+                        <th scope="col">其他</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="(item, index) in myBuys" :key="item.id" class="small text-muted">
+                        <td valign="center">
+                            <div>商品编号：{{item.id}}</div>
+                            <div>游戏名称：{{item.gameName}}</div>
+                            <div>游戏大区：{{item.gameServer}}</div>
+                        </td>
+                        <td valign="middle">
+                            <div>账号：{{item.gameUsername}}</div>
+                            <br>
+                            <div>密码：<a v-if="!item.isShowpassword" href="#" @click="showPassword(index)">[点击查看]</a><span
+                                    v-else>{{item.gameUserPassword}}</span></div>
+                        </td>
+                        <td valign="middle">
+                            <br>
+                            <div>租金：{{item.gamePrice.toFixed(2)}}RMB/小时</div>
+                            <br>
+                        </td>
+                        <td valign="middle">
+                            <br>
+                            <div>到期时间：{{item.endTime}}</div>
+                            <br>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+<script src="https://cdn.staticfile.org/vue/2.6.11/vue.min.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+    let vm = new Vue({
+        el: "#app",
+        data: {
+            userInfo: {},
+            myShop: [],
+            myBuys: [],
+            totalPage: 0,
+            currentStatus: "myPub",
+            shopItem: {
+                gameName: null,
+                gameType: null,
+                gameServer: null,
+                gameUsername: null,
+                gameUserPassword: null,
+                gamePrice: null
+            },
+        },
+        created() {
+            this.getUserInfo();
+            this.listMyShop();
+            this.showMyBuys();
+        },
+        methods: {
+            clearShopItem() {
+                this.shopItem = {};
+            },
+            updateShopItem(item) {
+                this.shopItem = item;
+            },
+            changeShopStatus(id, status) {
+                $.post("/shop/changeShopStatus", {
+                    shopId: id,
+                    status,
+                }, response => {
+                    if (response.flag) {
+                        this.$message({
+                            message: '状态更改成功!',
+                            type: 'success'
+                        });
+                        // 重新渲染列表
+                        this.listMyShop();
+                    }
+                });
+            },
+            showPassword(index) {
+                if (this.currentStatus === 'myPub') {
+                    this.myShop[index].isShowpassword = true;
+                }
+
+                if (this.currentStatus === 'myBuy') {
+                    this.myBuys[index].isShowpassword = true;
+                }
+            },
+            getUserInfo() {
+                $.get("/user/getUserInfo", response => {
+                    this.userInfo = response;
+                });
+            },
+            showMyBuys() {
+                $.get("/good/listMyBuy", response => {
+                    this.myBuys = response.data.rows.map(x => {
+                        x.isShowpassword = false;
+                        return x;
+                    });
+                    this.totalPage = response.data.totalPage;
+                });
+            },
+            listMyShop(currentPage = 1) {
+                $.get(`/shop/listMyShop?page=${currentPage - 1}`, response => {
+                    this.myShop = response.data.rows.map(x => {
+                        x.isShowpassword = false;
+                        return x;
+                    });
+                    this.totalPage = response.data.totalPage;
+                })
+            },
+            logout() {
+                $.get("/logout", response => {
+                    if (response.flag) {
+                        window.location.href = "/index.html";
+                    }
+                })
+            },
+            deleteShop(shopId) {
+                $.post("/shop/deleteShop", {shopId: shopId}, response => {
+                    if (response.flag) {
+                        this.$message({
+                            message: '删除成功!',
+                            type: 'success'
+                        });
+                        // 重新渲染列表
+                        this.listMyShop();
+                    }
+                });
+            },
+            addShop() {
+                $.post("/shop/addShop", this.shopItem, response => {
+                    if (response.flag) {
+                        this.$message({
+                            message: '操作成功',
+                            type: 'success'
+                        });
+                        // 重新渲染列表
+                        this.listMyShop();
+                        // 关闭模态窗口
+                        $("#inputForm").modal('hide');
+                    } else {
+                        this.$message.error(response.message);
+                    }
+                });
+            },
+        }
+    })
+</script>
+
+</body>
+</html>

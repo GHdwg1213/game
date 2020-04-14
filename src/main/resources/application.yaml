@@ -1,0 +1,16 @@
+server:
+  port: 10010
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    # H2 database configuration.
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:file:~/.game/db/game
+    username: admin
+    password: 123456
+  h2:
+    console:
+      settings:
+        web-allow-others: false
+      path: /h2-console
+      enabled: false

@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
+          crossorigin="anonymous">
+    <link href="https://cdn.staticfile.org/font-awesome/5.13.0/css/all.min.css" rel="stylesheet">
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <title>游戏账号租赁系统</title>
+    <style>
+
+        body {
+            color: #969696;
+        }
+
+        input:focus {
+            outline: none;
+        }
+
+        .sign-title {
+            font-size: 18px;
+        }
+
+        .button-active {
+            font-weight: bold;
+            color: #ea6f5a;
+            border-bottom: 2px solid #ea6f5a;
+        }
+
+        .input-box {
+            position: relative;
+        }
+
+        .sign-icon {
+            position: absolute;
+            top: 17px;
+            left: 16px;
+        }
+    </style>
+</head>
+<body>
+<!-- 登录界面容器 -->
+<div id="app" class="d-flex justify-content-center bg-light" style="height: 100vh;">
+    <!-- 登录盒子容器 -->
+    <div class="bg-white shadow-lg align-self-center rounded p-5" style="width: 400px;">
+        <!-- 登录注册切换 -->
+        <div class="sign-title d-flex px-5 justify-content-center mb-5" style="cursor: pointer;">
+            <div :class="isLogin ? 'button-active' : ''" class="p-2" @click="isLogin = true">登录</div>
+            <div class="p-2">·</div>
+            <div :class="!isLogin ? 'button-active' : ''" class="p-2" @click="isLogin = false">注册</div>
+        </div>
+        <!-- 登录排版 -->
+        <form>
+            <template v-if="!isLogin">
+                <div class="border rounded-top input-box py-1 bg-light">
+                    <i class="fas fa-user sign-icon"></i>
+                    <label for="inputNick" class="sr-only">昵称</label>
+                    <input v-model="nickName" type="text" id="inputNick" class="px-5 w-100 py-2 border-0 bg-light"
+                           placeholder="昵称"
+                           required autofocus>
+                </div>
+            </template>
+            <div class="border input-box py-1 bg-light">
+                <i class="fas fa-user sign-icon"></i>
+                <label for="inputName" class="sr-only">账号</label>
+                <input v-model="username" type="text" id="inputName" class="px-5 w-100 py-2 border-0 bg-light"
+                       placeholder="账号" required
+                       autofocus>
+            </div>
+            <div class="border border-top-0 rounded-bottom input-box py-1 bg-light">
+                <i class="fas fa-lock sign-icon"></i>
+                <label for="inputPassword" class="sr-only">Password</label>
+                <input v-model="password" type="password" id="inputPassword" class="px-5 w-100 py-2 border-0 bg-light"
+                       placeholder="密码"
+                       required>
+            </div>
+
+            <div class="form-check my-4 d-flex">
+                <template v-if="isLogin">
+                    <div>
+                        <input class="form-check-input" v-model="rememberMe" type="checkbox" value="记住我"
+                               id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">
+                            记住我
+                        </label>
+                    </div>
+                    <a href="#" class="ml-auto">
+                        忘记密码?
+                    </a>
+                </template>
+            </div>
+
+            <div class="mb-4">
+                <template v-if="isLogin">
+                    <button type="button" @click="login" class="btn btn-lg btn-info btn-block rounded-pill">登录</button>
+                </template>
+                <template v-else>
+                    <button type="button" @click="addUser" class="btn btn-lg btn-info btn-block rounded-pill">注册
+                    </button>
+                </template>
+            </div>
+
+            <p class="text-center">© DWG·CY游戏账号租赁系统 2019-2020</p>
+        </form>
+    </div>
+</div>
+
+<!--div#dwg-$.wcy[value=wcy-$]*12-->
+<!-- 引入组件库 -->
+<script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
+<script src="https://cdn.staticfile.org/vue/2.6.11/vue.min.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script>
+    new Vue({
+        el: "#app",
+        data: {
+            username: null,
+            password: null,
+            nickName: null,
+            rememberMe: false,
+            isLogin: true
+        },
+        created() {
+
+        },
+        methods: {
+            login() {
+                if (this.verifyProperties()) {
+                    let data = {
+                        username: this.username,
+                        password: this.password,
+                        rememberMe: this.rememberMe
+                    };
+                    $.post("/user/login", data, (data) => {
+                        if (data.flag) {
+                            window.location.href = "zuhao.html";
+                        } else {
+                            this.$notify.error({
+                                title: '登录失败',
+                                message: data.message,
+                            });
+                        }
+                    });
+                }
+            },
+            addUser() {
+                if (this.verifyProperties()) {
+                    let data = {
+                        username: this.username,
+                        password: this.password,
+                        nickName: this.nickName
+                    };
+                    $.post("/user/addUser", data, (data) => {
+                        if (data.flag) {
+                            this.$notify({
+                                title: '注册成功',
+                                message: '请登录!!!',
+                            });
+                            this.isLogin = true;
+                        } else {
+                            this.$notify.error({
+                                title: '注册失败',
+                                message: data.message,
+                            });
+                        }
+                    });
+                }
+            },
+            verifyProperties() {
+                if (!this.nickName && !this.isLogin) {
+                    this.$notify.error({
+                        title: '字段验证失败!',
+                        message: '请填写昵称!',
+
+                    });
+                    return false;
+                }
+                if (!this.username) {
+                    this.$notify.error({
+                        title: '字段验证失败!',
+                        message: '请填写用户名!'
+                    });
+                    return false;
+                }
+                if (!this.password) {
+                    this.$notify.error({
+                        title: '字段验证失败!',
+                        message: '请填写密码!'
+                    });
+                    return false;
+                }
+                return true;
+            }
+        }
+    });
+</script>
+</body>
+</html>
